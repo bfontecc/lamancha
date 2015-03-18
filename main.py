@@ -3,8 +3,14 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from sets import Set
 import sys, re
 
+YOSEMITE = True
+
 visited = Set()
 emails = Set()
+
+phantom_bin = 'phantomjs/bin/phantomjs'
+if YOSEMITE:
+	phantom_bin += '_yosemite'
 
 user_agent = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
@@ -13,7 +19,7 @@ user_agent = (
 
 cap = dict(DesiredCapabilities.PHANTOMJS)
 cap["phantomjs.page.settings.userAgent"] = user_agent
-driver = webdriver.PhantomJS('../phantomjs-2.0.0-macosx/bin/phantomjs_yosemite', desired_capabilities=cap)
+driver = webdriver.PhantomJS(phantom_bin, desired_capabilities=cap)
 root = ''
 salt = '938475sfasdg34'
 
