@@ -21,11 +21,13 @@ cap = dict(DesiredCapabilities.PHANTOMJS)
 cap["phantomjs.page.settings.userAgent"] = user_agent
 driver = webdriver.PhantomJS(phantom_bin, desired_capabilities=cap)
 root = ''
-salt = '938475sfasdg34'
+salt = '93475sfasdg34'
 
 def search(page):
 	"Traverse Website Depth-First"
 	if page is None:
+		return
+	if page.find(root[7:]) < 0:
 		return
 	driver.get(page)
 	same_domain = False
@@ -33,25 +35,20 @@ def search(page):
 	for c in cookies:
 		if 'name' in c and 'value' in c:
 			if c['name'] == 'root' and c['value'] == salt:
-				print "  page is in same domain..."
 				same_domain = True
 	if not same_domain:
-		print "  page is in different domain"
 		visited.add(page)
 		return
-	print "Searching page: ", page
-	for email in scrape(page):
-		print "  Found email: ",email
-		emails.add(email)
-	visited.add(page)
-	for link in get_links(page):
-		print "  Found link: ", link
-		if link not in visited:
-			search(link)
+	else:
+		for email in scrape(page):
+			emails.add(email)
+		visited.add(page)
+		for link in get_links(page):
+			if link not in visited:
+				search(link)
 
 def scrape(page):
 	"Return a list of the unique emails on a page"
-	print "Scraping: ", page
 	driver.get(page)
 	data = driver.page_source
 	found = Set()
@@ -62,7 +59,6 @@ def scrape(page):
 
 def get_links(page):
 	"Return a list of unique links on a page, or None"
-	print "Getting links on: ",page
 	found = Set()
 	driver.get(page)
 	cookies = driver.get_cookies()
@@ -74,6 +70,7 @@ def get_links(page):
 
 def main():
 	print 'Domain: ',sys.argv[1]
+	global root
 	root = sys.argv[1]
 	if root.find('http://') < 0:
 		root = 'http://' + root
