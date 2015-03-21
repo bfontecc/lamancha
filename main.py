@@ -26,6 +26,13 @@ def strip_protocol(url):
     "Take the protocol out of the url"
     return url.split('//')[-1]
 
+def strip_fragment(url):
+    "Take out the hashbang fragment"
+    if url is not None:
+        return url.split('#')[0]
+    else:
+        return None
+
 def domain(url):
     "Return the domain name"
     return strip_protocol(url).split('/')[0]
@@ -39,9 +46,9 @@ def search(page):
     driver.get(page)
     for email in scrape(page):
         emails.add(email)
-    visited.add(page)
+    visited.add(strip_fragment(page))
     for link in get_links(page):
-        if link not in visited:
+        if strip_fragment(link) not in visited:
             search(link)
 
 def scrape(page):
