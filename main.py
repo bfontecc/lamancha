@@ -21,31 +21,28 @@ cap = dict(DesiredCapabilities.PHANTOMJS)
 cap["phantomjs.page.settings.userAgent"] = user_agent
 driver = webdriver.PhantomJS(phantom_bin, desired_capabilities=cap)
 root = ''
-salt = '93475sfasdg34'
+
+def strip_protocol(url):
+	"Take the protocol out of the url"
+	return url.split('//')[-1]
+
+def domain(url):
+	"Return the domain name"
+	return strip_protocol(url).split('/')[0]
 
 def search(page):
 	"Traverse Website Depth-First"
-	if page is None:
+	if not page:
 		return
-	if page.find(root[7:]) < 0:
+	if domain(page).find(domain(root)) < 0:
 		return
 	driver.get(page)
-	same_domain = False
-	cookies = driver.get_cookies()
-	for c in cookies:
-		if 'name' in c and 'value' in c:
-			if c['name'] == 'root' and c['value'] == salt:
-				same_domain = True
-	if not same_domain:
-		visited.add(page)
-		return
-	else:
-		for email in scrape(page):
-			emails.add(email)
-		visited.add(page)
-		for link in get_links(page):
-			if link not in visited:
-				search(link)
+	for email in scrape(page):
+		emails.add(email)
+	visited.add(page)
+	for link in get_links(page):
+		if link not in visited:
+			search(link)
 
 def scrape(page):
 	"Return a list of the unique emails on a page"
@@ -67,18 +64,13 @@ def get_links(page):
 		found.add(link)
 	return found
 
-
 def main():
-	print 'Domain: ',sys.argv[1]
+	print 'Url: ',sys.argv[1]
 	global root
 	root = sys.argv[1]
 	if root.find('http://') < 0:
 		root = 'http://' + root
-	driver.get(root)
-	driver.add_cookie({'name' : 'root', 'value' : salt, 'domain':root[7:], 'path' : '/', 
-		'secure' : False})
 	search(root)
-	driver.delete_cookie('root')
 	for email in emails:
 		print email
 
