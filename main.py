@@ -10,7 +10,7 @@ emails = Set()
 
 phantom_bin = 'phantomjs/bin/phantomjs'
 if YOSEMITE:
-	phantom_bin += '_yosemite'
+    phantom_bin += '_yosemite'
 
 user_agent = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
@@ -23,56 +23,56 @@ driver = webdriver.PhantomJS(phantom_bin, desired_capabilities=cap)
 root = ''
 
 def strip_protocol(url):
-	"Take the protocol out of the url"
-	return url.split('//')[-1]
+    "Take the protocol out of the url"
+    return url.split('//')[-1]
 
 def domain(url):
-	"Return the domain name"
-	return strip_protocol(url).split('/')[0]
+    "Return the domain name"
+    return strip_protocol(url).split('/')[0]
 
 def search(page):
-	"Traverse Website Depth-First"
-	if not page:
-		return
-	if domain(page).find(domain(root)) < 0:
-		return
-	driver.get(page)
-	for email in scrape(page):
-		emails.add(email)
-	visited.add(page)
-	for link in get_links(page):
-		if link not in visited:
-			search(link)
+    "Traverse Website Depth-First"
+    if not page:
+        return
+    if domain(page).find(domain(root)) < 0:
+        return
+    driver.get(page)
+    for email in scrape(page):
+        emails.add(email)
+    visited.add(page)
+    for link in get_links(page):
+        if link not in visited:
+            search(link)
 
 def scrape(page):
-	"Return a list of the unique emails on a page"
-	driver.get(page)
-	data = driver.page_source
-	found = Set()
-	email_pattern = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
-	for match in email_pattern.findall(data):
-		found.add(match)
-	return list(found)
+    "Return a list of the unique emails on a page"
+    driver.get(page)
+    data = driver.page_source
+    found = Set()
+    email_pattern = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
+    for match in email_pattern.findall(data):
+        found.add(match)
+    return list(found)
 
 def get_links(page):
-	"Return a list of unique links on a page, or None"
-	found = Set()
-	driver.get(page)
-	cookies = driver.get_cookies()
-	for elem in driver.find_elements_by_tag_name('a'):
-		link = elem.get_attribute('href')
-		found.add(link)
-	return found
+    "Return a list of unique links on a page, or None"
+    found = Set()
+    driver.get(page)
+    cookies = driver.get_cookies()
+    for elem in driver.find_elements_by_tag_name('a'):
+        link = elem.get_attribute('href')
+        found.add(link)
+    return found
 
 def main():
-	print 'Url: ',sys.argv[1]
-	global root
-	root = sys.argv[1]
-	if root.find('http://') < 0:
-		root = 'http://' + root
-	search(root)
-	for email in emails:
-		print email
+    print 'Url: ',sys.argv[1]
+    global root
+    root = sys.argv[1]
+    if root.find('http://') < 0:
+        root = 'http://' + root
+    search(root)
+    for email in emails:
+        print email
 
 if __name__ == '__main__':
-	main()
+    main()
