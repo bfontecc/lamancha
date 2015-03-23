@@ -23,22 +23,22 @@ driver = webdriver.PhantomJS(phantom_bin, desired_capabilities=cap)
 root = ''
 
 def strip_protocol(url):
-    "Take the protocol out of the url"
+    '''Take the protocol out of the url'''
     return url.split('//')[-1]
 
 def strip_fragment(url):
-    "Take out the hashbang fragment"
+    '''Take out the hashbang fragment'''
     if url is not None:
         return url.split('#')[0]
     else:
         return None
 
 def domain(url):
-    "Return the domain name"
+    '''Return the domain name'''
     return strip_protocol(url).split('/')[0]
 
 def search(page):
-    "Traverse Website Depth-First"
+    '''Traverse Website Depth-First'''
     if not page:
         return
     if domain(page).find(domain(root)) < 0:
@@ -52,7 +52,7 @@ def search(page):
             search(link)
 
 def scrape(page):
-    "Return a list of the unique emails on a page"
+    '''Return a list of the unique emails on a page'''
     driver.get(page)
     data = driver.page_source
     found = Set()
@@ -62,7 +62,7 @@ def scrape(page):
     return list(found)
 
 def get_links(page):
-    "Return a list of unique links on a page, or None"
+    '''Return a list of unique links on a page, or None'''
     found = Set()
     driver.get(page)
     cookies = driver.get_cookies()
